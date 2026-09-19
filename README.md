@@ -13,8 +13,8 @@
 
 ### A component of the `moongas` ecosystem of media library tools
 
-- [moongas-mediatunes-web-vue](https://github.com/bretttolbert/moongas-mediatunes-web-vue) [![CI](https://github.com/bretttolbert/moongas-py-mediaserver/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediatunes-web-vue/actions/workflows/ci.yml) - A Deno-tooled TypeScript/Vue SPA for Moongas hybrid media collections, pairing with the separate moongas-py-mediatunes-svc-python-blacksheep backend to seemlessly blend offline and streaming playback
-- [moongas-py-mediatunes-svc-python-blacksheep](https://github.com/bretttolbert/moongas-py-mediatunes-svc-python-blacksheep) [![CI](https://github.com/bretttolbert/moongas-py-mediaserver/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediatunes-svc-python-blacksheep/actions/workflows/ci.yml) - Python+BlackSheep API service for Moongas hybrid media collections—backend for Moongas mediatunes web application (moongas-mediatunes-web-vue)
+- [moongas-mediatunes-web-vue](https://github.com/bretttolbert/moongas-mediatunes-web-vue) [![CI](https://github.com/bretttolbert/moongas-mediatunes-web-vue/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediatunes-web-vue/actions/workflows/ci.yml) - A Deno-tooled TypeScript/Vue SPA for Moongas hybrid media collections, pairing with the separate moongas-mediatunes-svc-python-blacksheep backend to seemlessly blend offline and streaming playback
+- [moongas-mediatunes-svc-python-blacksheep](https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep) [![CI](https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep/actions/workflows/ci.yml) - Python+BlackSheep API service for Moongas hybrid media collections—backend for Moongas mediatunes web application (moongas-mediatunes-web-vue)
 - [moongas-collection-demo](https://github.com/bretttolbert/moongas-collection-demo) [![CI](https://github.com/bretttolbert/moongas-collection-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-collection-demo/actions/workflows/ci.yml) - Example Moongas media collection (metadata only)
 - [moongas-mediascan-python](https://github.com/bretttolbert/moongas-mediascan-python) [![CI](https://github.com/bretttolbert/moongas-mediascan-python/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediascan-python/actions/workflows/ci.yml) - Python package for loading Moongas database and Yaml
 - [moongas-mediascan-golang](https://github.com/bretttolbert/moongas-mediascan-golang) [![CI](https://github.com/bretttolbert/moongas-mediascan-golang/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediascan-golang/actions/workflows/ci.yml) - Golang module to scan media collections and Moongas Yaml metatadata, outputs Moongas database
@@ -103,7 +103,7 @@ The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/
 - Doesn't work with some `.m4a` files
     - Error: html5 audio element can't decode
 - Requires that your music library be scanned with [moongas-mediascan-golang](https://github.com/bretttolbert/moongas-mediascan-golang)
-    - `moongas-mediascan-golang/cmd/scantodb` scans your music library and outputs a `mediascan.db` file
+    - `moongas-mediascan-golang/cmd/mediascan-db` scans your music library and outputs a `mediascan.db` file
     - This must be repeated to update the music library (e.g. add new files)
     - Album art may be extracted (and converted to .webp) using the mediascan copy covers script
     - I cannot share my music files, of course, as they are copyrighted, but I can share my mediascan database with over 20,000+ tracks, allowing you to browse my extensive and painstakingly organized music library (with accurate tags, genre and year) and _play_ any track by opening a YouTube search for it. 
@@ -122,7 +122,7 @@ The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/
 
 ## Dependencies
 
-- [moongas-py-mediatunes-svc-python-blacksheep](https://github.com/bretttolbert/moongas-py-mediatunes-svc-python-blacksheep) [![CI](https://github.com/bretttolbert/moongas-py-mediaserver/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediatunes-svc-python-blacksheep/actions/workflows/ci.yml) - Python+BlackSheep API service for Moongas hybrid media collections—backend for Moongas mediatunes web application (moongas-mediatunes-web-vue)
+- [moongas-mediatunes-svc-python-blacksheep](https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep) [![CI](https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep/actions/workflows/ci.yml) - Python+BlackSheep API service for Moongas hybrid media collections—backend for Moongas mediatunes web application (moongas-mediatunes-web-vue)
 
 ## Installation
 
@@ -132,15 +132,15 @@ The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/
 - Run the `scantodb` command (requires [go](https://go.dev/doc/install))
 ```bash
 cd moongas-mediascan-golang
-go run cmd/scantodb/main.go mediascan-config.yml ../mediascan.db
+go run cmd/mediascan-db mediascan-config.yml ../mediascan.db
 ```
 
 ### Install the web app from GitHub source
 
 - Clone the repo
 ```bash
-git clone git@github.com:bretttolbert/moongas-py-mediaserver.git
-cd moongas-py-mediaserver
+git clone git@github.com:bretttolbert/moongas-mediatunes-web-vue.git
+cd moongas-mediatunes-web-vue
 ```
 - Install client dependencies and build the SPA
 ```bash
@@ -156,43 +156,43 @@ deno task serve
 
 A systemd unit is provided for the web frontend:
 
-- [`mediaserver-web.service`](./mediaserver-web.service) — the Deno web frontend (serves the Vue SPA)
+- [`mediatunes-web.service`](./mediatunes-web.service) — the Deno web frontend (serves the Vue SPA)
 
 To set it up:
 
 - Customize the .service file as required
 - Build the frontend with `deno task build` (so `client/dist` exists)
-- Update [`mediaserver-web.service`](./mediaserver-web.service): set `ExecStart` to the output of `which deno` on the host
+- Update [`mediatunes-web.service`](./mediatunes-web.service): set `ExecStart` to the output of `which deno` on the host
 - Copy the `.service` file into the systemd system folder to install it as a systemd service
 ```bash
-sudo cp mediaserver-web.service /etc/systemd/system/
+sudo cp mediatunes-web.service /etc/systemd/system/
 cd /etc/systemd/system
-sudo chmod 644 mediaserver-web.service
+sudo chmod 644 mediatunes-web.service
 ```
 - Enable the service with `systemctl enable`:
 ```bash
-sudo systemctl enable mediaserver-web.service
+sudo systemctl enable mediatunes-web.service
 ```
 - Start the service
 ```bash
-systemctl start mediaserver-web.service
+systemctl start mediatunes-web.service
 ```
-- Use `systemctl status` to verify that mediaserver-web is running
+- Use `systemctl status` to verify that mediatunes-web is running
 ```bash
-systemctl status mediaserver-web
+systemctl status mediatunes-web
 ```
 - If you make changes to the unit file, use the `systemctl daemon-reload` command to force systemd to reload it
 ```bash
 systemctl daemon-reload
-systemctl restart mediaserver-web
+systemctl restart mediatunes-web
 ```
 - Once you have it set up to run as a service, re-scanning your library is as easy as this:
 ```bash
 cd moongas-mediascan-golang
-go run cmd/scantodb/main.go mediascan-conf.yml ../mediascan.db
-sudo systemctl restart mediaserver-web
-journalctl -b -f -u mediaserver-web
+go run cmd/mediascan-db mediascan-config.yml ../mediascan.db
+sudo systemctl restart mediatunes-web
+journalctl -b -f -u mediatunes-web
 ```
-- Use `-u` to specify the unit by name (`mediaserver-web`)
+- Use `-u` to specify the unit by name (`mediatunes-web`)
 - Use `-f` to follow the log so you can watch the server startup
 - Use `-b` to only show output since last boot (avoids showing old output)
