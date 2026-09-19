@@ -22,7 +22,7 @@
 
 ## Live Demos
 - [Live Demo (hosted on bretttolbert.com)](https://bretttolbert.com/mediaserver)
-- [Live Demo (hosted on moongas.org)](https://moongas.org/mediatunes)
+- [Live Demo (hosted on moongas.org)](https://moongas.org/mediaserver)
 
 # Quick Start
 
