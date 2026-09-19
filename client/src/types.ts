@@ -1,6 +1,5 @@
 /**
- * Shared types mirroring the Flask JSON API payloads
- * (see app/api/routes.py).
+ * Shared types mirroring the JSON API payloads.
  */
 
 export interface MediaFile {

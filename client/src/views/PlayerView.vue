@@ -49,7 +49,7 @@ const audioSrc = computed(() =>
 )
 const coverSrc = computed(() => (track.value ? getfileUrl(track.value.coverPath) : '#'))
 
-/** Links into the browse pages for the current track (formerly Flask.url_for calls). */
+/** Links into the browse pages for the current track. */
 const trackLinks = computed(() => {
   const t = track.value
   if (!t) return null

@@ -14,8 +14,8 @@ import type {
 
 /**
  * Serialize vue-router query params into URLSearchParams.
- * Multi-value params are repeated (?genre=a&genre=b), matching what
- * Flask's request.args.getlist() expects on the backend.
+ * Multi-value params are repeated (?genre=a&genre=b), as the backend
+ * API expects.
  */
 export function buildSearchParams(query: LocationQuery): URLSearchParams {
   const params = new URLSearchParams()
@@ -42,7 +42,7 @@ async function fetchJson<T>(path: string, query?: LocationQuery): Promise<T> {
   return (await resp.json()) as T
 }
 
-/** URL for the Flask /getfile/<path> media-file endpoint. */
+/** URL for the /getfile/<path> media-file endpoint. */
 export function getfileUrl(path: string): string {
   return `/getfile${path.startsWith('/') ? path : `/${path}`}`
 }
