@@ -18,10 +18,31 @@
 - [moongas-go-mediascan](https://github.com/bretttolbert/moongas-go-mediascan) [![CI](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml) - Golang module to scan media collections and Moongas Yaml metatadata, outputs Moongas database
 - [moongas-py-mediatest](https://github.com/bretttolbert/moongas-py-mediatest) [![CI](https://github.com/bretttolbert/moongas-py-mediatest/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediatest/actions/workflows/ci.yml) - Python tool for enforcing media collection rules (implemented with `pytest`)
 
-
 ## Live Demos
 - [Live Demo (hosted on bretttolbert.com)](https://bretttolbert.com/mediaserver)
 - [Live Demo (hosted on moongas.org)](https://moongas.org/mediaserver)
+
+# Quick Start
+
+### Production
+
+```sh
+deno task build     # builds client/ to client/dist
+deno task serve     # http://localhost:8000 (env: PORT, BACKEND_URL, BACKEND_URL_PREFIX)
+```
+
+### Development
+
+```sh
+deno task install   # first time only
+deno task dev       # http://localhost:5173
+```
+
+### Type checking
+
+```sh
+deno task check     # runs vue-tsc on client/ and deno check on server/
+```
 
 ### Filter by year range
 
@@ -44,29 +65,9 @@
 The web UI is a single-page application built with [Deno](https://deno.com/), [Vite](https://vite.dev/), [Vue 3](https://vuejs.org/) and TypeScript:
 
 - `client/` — the Vue SPA (all TypeScript; uses npm `d3` + `d3-cloud` for the word clouds). Routes mirror the API paths (`/albums`, `/tracks`, `/artists`, `/player`, `/genres-cloud`, etc.).
-- `server/main.ts` — plain `Deno.serve` production server: serves the Vite build from `client/dist` and falls back to `index.html` for client-side routes.
+- `server/main.ts` — plain `Deno.serve` production server: serves the Vite build from `client/dist`, proxies `/api/*` and `/getfile/*` to the backend, and falls back to `index.html` for client-side routes.
 
-The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/artists`, `/api/artist`, `/api/genres`, `/api/artist-geo/<kind>`, `/api/wordcloud/*`, `/api/random-track`) and media files via `/getfile/*`; serve these with any compatible backend.
-
-### Development
-
-```sh
-deno task install   # first time only
-deno task dev       # http://localhost:5173
-```
-
-### Production
-
-```sh
-deno task build     # builds client/ to client/dist
-deno task serve     # http://localhost:8000 (env: PORT)
-```
-
-### Type checking
-
-```sh
-deno task check     # runs vue-tsc on client/ and deno check on server/
-```
+The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/artists`, `/api/artist`, `/api/genres`, `/api/artist-geo/<kind>`, `/api/wordcloud/*`, `/api/random-track`) and media files via `/getfile/*`, proxied to the backend at `BACKEND_URL` (default `http://127.0.0.1:5000`).
 
 ### Runtimes
 

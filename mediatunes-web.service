@@ -1,12 +1,13 @@
 [Unit]
 # Web frontend for moongas mediatunes: plain Deno.serve server that serves the
-# Vue SPA (client/dist).
+# Vue SPA (client/dist) and proxies /api/* and /getfile/* to the backend
+# (mediatunes-svc).
 #
 # Prerequisites:
 #   1. Deno installed (https://deno.com/) — set ExecStart below to the output of
 #      `which deno` on the target host (commonly ~/.deno/bin/deno or /usr/bin/deno).
 #   2. Frontend built: run `deno task build` in the repo so client/dist exists.
-Description=mediaserver-web (Deno SPA server / frontend)
+Description=mediatunes-web (Deno SPA server / frontend)
 After=network.target
 
 [Service]
@@ -14,8 +15,12 @@ User=root
 Group=root
 WorkingDirectory=/var/www/moongas/moongas-mediatunes-web
 # Environment for server/main.ts (see file header for details):
-#   PORT  listen port (default 8000)
+#   PORT                listen port (default 8000)
+#   BACKEND_URL         backend base URL
+#   BACKEND_URL_PREFIX  path prefix the backend serves under, if any
 Environment=PORT=8000
+Environment=BACKEND_URL=http://127.0.0.1:5000
+Environment=BACKEND_URL_PREFIX=/mediatunes-service
 ExecStart=/usr/bin/deno run --allow-net --allow-read --allow-env server/main.ts
 Restart=always
 RestartSec=30s

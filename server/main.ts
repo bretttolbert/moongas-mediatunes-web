@@ -1,14 +1,21 @@
 /**
- * Production server for the mediaserver SPA — plain Deno.serve, no framework.
+ * Production server for the mediatunes SPA — plain Deno.serve, no framework.
  *
  * - Serves the Vite build output from client/dist
+ * - Proxies /api/* and /getfile/* to the backend (mediatunes-svc, which owns
+ *   the mediascan database and the media files)
  * - Falls back to index.html for unknown paths (SPA history-mode routing)
  *
  * Environment variables:
- *   PORT  listen port (default 8000)
+ *   PORT                listen port (default 8000)
+ *   BACKEND_URL         backend base URL (default http://127.0.0.1:5000)
+ *   BACKEND_URL_PREFIX  path prefix the backend serves under, if any
+ *                       (default "", e.g. "/mediaserver" in production)
  */
 
 const PORT = Number(Deno.env.get("PORT") ?? "8000");
+const BACKEND_URL = Deno.env.get("BACKEND_URL") ?? "http://127.0.0.1:5000";
+const BACKEND_URL_PREFIX = (Deno.env.get("BACKEND_URL_PREFIX") ?? "").replace(/\/$/, "");
 const DIST_DIR = new URL("../client/dist/", import.meta.url);
 
 const MIME_TYPES: Record<string, string> = {
@@ -35,6 +42,42 @@ function contentType(path: string): string {
   const idx = path.lastIndexOf(".");
   if (idx < 0) return "application/octet-stream";
   return MIME_TYPES[path.slice(idx).toLowerCase()] ?? "application/octet-stream";
+}
+
+const HOP_BY_HOP_HEADERS = [
+  "connection",
+  "keep-alive",
+  "proxy-authenticate",
+  "proxy-authorization",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+];
+
+async function proxyToBackend(req: Request): Promise<Response> {
+  const url = new URL(req.url);
+  const target = `${BACKEND_URL}${BACKEND_URL_PREFIX}${url.pathname}${url.search}`;
+
+  const reqHeaders = new Headers(req.headers);
+  reqHeaders.delete("host");
+  for (const h of HOP_BY_HOP_HEADERS) reqHeaders.delete(h);
+
+  const upstream = await fetch(target, {
+    method: req.method,
+    headers: reqHeaders,
+    body: req.method === "GET" || req.method === "HEAD" ? null : req.body,
+    redirect: "manual",
+  });
+
+  const respHeaders = new Headers(upstream.headers);
+  for (const h of HOP_BY_HOP_HEADERS) respHeaders.delete(h);
+
+  return new Response(upstream.body, {
+    status: upstream.status,
+    statusText: upstream.statusText,
+    headers: respHeaders,
+  });
 }
 
 async function serveStatic(pathname: string): Promise<Response | null> {
@@ -71,6 +114,23 @@ async function serveIndex(): Promise<Response> {
 async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/getfile/")) {
+    try {
+      return await proxyToBackend(req);
+    } catch (err) {
+      // Client disconnected / request aborted mid-flight: harmless, don't log a 502.
+      const e = err as { name?: string; code?: string };
+      if (e?.name === "AbortError" || e?.code === "ECONNRESET") {
+        return new Response(null, { status: 499 }); // client closed request
+      }
+      console.error(`Proxy error for ${url.pathname}:`, err);
+      return new Response(`Bad Gateway: backend unreachable at ${BACKEND_URL}`, {
+        status: 502,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      });
+    }
+  }
+
   const staticResp = await serveStatic(url.pathname);
   if (staticResp) return staticResp;
 
@@ -78,5 +138,6 @@ async function handler(req: Request): Promise<Response> {
   return await serveIndex();
 }
 
-console.log(`mediaserver SPA server listening on http://0.0.0.0:${PORT}`);
+console.log(`mediatunes SPA server listening on http://0.0.0.0:${PORT}`);
+console.log(`Proxying /api and /getfile to ${BACKEND_URL}${BACKEND_URL_PREFIX}`);
 Deno.serve({ port: PORT, hostname: "0.0.0.0" }, handler);
