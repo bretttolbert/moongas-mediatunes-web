@@ -7,13 +7,13 @@
 #   1. Deno installed (https://deno.com/) — set ExecStart below to the output of
 #      `which deno` on the target host (commonly ~/.deno/bin/deno or /usr/bin/deno).
 #   2. Frontend built: run `deno task build` in the repo so client/dist exists.
-Description=mediatunes-web (Deno SPA server / frontend)
+Description=mediatunes-web-vue (Deno/Vue SPA server / frontend)
 After=network.target
 
 [Service]
 User=root
 Group=root
-WorkingDirectory=/var/www/moongas/moongas-mediatunes-web
+WorkingDirectory=/var/www/moongas/moongas-collection-demo/moongas-mediatunes-web-vue
 # Environment for server/main.ts (see file header for details):
 #   PORT                listen port (default 8000)
 #   BACKEND_URL         backend base URL
