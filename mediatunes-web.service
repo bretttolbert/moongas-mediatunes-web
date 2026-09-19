@@ -17,10 +17,10 @@ WorkingDirectory=/var/www/moongas/moongas-mediatunes-web
 # Environment for server/main.ts (see file header for details):
 #   PORT                listen port (default 8000)
 #   BACKEND_URL         backend base URL
-#   BACKEND_URL_PREFIX  path prefix the backend serves under, if any
+#   BACKEND_URL_PREFIX  path prefix the JSON API is served under
 Environment=PORT=8000
 Environment=BACKEND_URL=http://127.0.0.1:5000
-Environment=BACKEND_URL_PREFIX=/mediatunes-service
+Environment=BACKEND_URL_PREFIX=/api
 ExecStart=/usr/bin/deno run --allow-net --allow-read --allow-env server/main.ts
 Restart=always
 RestartSec=30s

@@ -67,7 +67,7 @@ The web UI is a single-page application built with [Deno](https://deno.com/), [V
 - `client/` — the Vue SPA (all TypeScript; uses npm `d3` + `d3-cloud` for the word clouds). Routes mirror the API paths (`/albums`, `/tracks`, `/artists`, `/player`, `/genres-cloud`, etc.).
 - `server/main.ts` — plain `Deno.serve` production server: serves the Vite build from `client/dist`, proxies `/api/*` and `/getfile/*` to the backend, and falls back to `index.html` for client-side routes.
 
-The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/artists`, `/api/artist`, `/api/genres`, `/api/artist-geo/<kind>`, `/api/wordcloud/*`, `/api/random-track`) and media files via `/getfile/*`, proxied to the backend at `BACKEND_URL` (default `http://127.0.0.1:5000`).
+The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/artists`, `/api/artist`, `/api/genres`, `/api/artist-geo/<kind>`, `/api/wordcloud/*`, `/api/random-track`) and media files via `/getfile/*`. Both are proxied to the mediatunes-svc backend at `BACKEND_URL` (default `http://127.0.0.1:5000`); the JSON API is served under `BACKEND_URL_PREFIX` (e.g. `/api`) while media files are served at the backend root (`/getfile/<path>`, no prefix).
 
 ### Runtimes
 

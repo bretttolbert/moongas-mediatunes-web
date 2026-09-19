@@ -6,11 +6,15 @@
  *   the mediascan database and the media files)
  * - Falls back to index.html for unknown paths (SPA history-mode routing)
  *
+ * Backend path layout (mediatunes-svc):
+ *   - JSON API lives under BACKEND_URL_PREFIX (e.g. "/api" -> /api/albums, ...)
+ *   - Media files are served at the ROOT: /getfile/<path> (no prefix)
+ *
  * Environment variables:
  *   PORT                listen port (default 8000)
  *   BACKEND_URL         backend base URL (default http://127.0.0.1:5000)
- *   BACKEND_URL_PREFIX  path prefix the backend serves under, if any
- *                       (default "", e.g. "/mediaserver" in production)
+ *   BACKEND_URL_PREFIX  path prefix the backend's JSON API is served under
+ *                       (default "", e.g. "/api")
  */
 
 const PORT = Number(Deno.env.get("PORT") ?? "8000");
@@ -57,7 +61,11 @@ const HOP_BY_HOP_HEADERS = [
 
 async function proxyToBackend(req: Request): Promise<Response> {
   const url = new URL(req.url);
-  const target = `${BACKEND_URL}${BACKEND_URL_PREFIX}${url.pathname}${url.search}`;
+  // /getfile/* is served at the backend root; only /api/* gets the prefix.
+  const upstreamPath = url.pathname.startsWith("/api/")
+    ? `${BACKEND_URL_PREFIX}${url.pathname}`
+    : url.pathname;
+  const target = `${BACKEND_URL}${upstreamPath}${url.search}`;
 
   const reqHeaders = new Headers(req.headers);
   reqHeaders.delete("host");
@@ -139,5 +147,5 @@ async function handler(req: Request): Promise<Response> {
 }
 
 console.log(`mediatunes SPA server listening on http://0.0.0.0:${PORT}`);
-console.log(`Proxying /api and /getfile to ${BACKEND_URL}${BACKEND_URL_PREFIX}`);
+console.log(`Proxying /api -> ${BACKEND_URL}${BACKEND_URL_PREFIX}/api, /getfile -> ${BACKEND_URL}/getfile`);
 Deno.serve({ port: PORT, hostname: "0.0.0.0" }, handler);

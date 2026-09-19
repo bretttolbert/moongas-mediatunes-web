@@ -7,14 +7,15 @@ const env = { ...loadEnv('', process.cwd(), ''), ...process.env }
 
 // Backend (mediatunes-svc) serving the JSON API and media files.
 const backendUrl = env.BACKEND_URL ?? 'http://127.0.0.1:5000'
-// Path prefix the backend serves under, if any (empty when unset).
-const backendPrefix = env.BACKEND_URL_PREFIX ?? ''
+// Path prefix the backend's JSON API is served under (e.g. "/api").
+// Media files (/getfile/*) are served at the backend root, WITHOUT this prefix.
+const apiPrefix = env.BACKEND_URL_PREFIX ?? ''
 
-// Proxy options shared by /api and /getfile.
+// Proxy options shared by /api and /getfile. /getfile is NOT prefixed because
+// the backend serves it at the root; only the JSON API lives under apiPrefix.
 const proxyOpts = {
   target: backendUrl,
   changeOrigin: true,
-  rewrite: (p: string) => `${backendPrefix}${p}`,
 } as const
 
 export default defineConfig({
@@ -22,7 +23,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': proxyOpts,
+      '/api': { ...proxyOpts, rewrite: (p: string) => `${apiPrefix}${p}` },
       '/getfile': proxyOpts,
     },
   },
