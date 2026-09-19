@@ -76,7 +76,7 @@ function withSort(link: GeoQuickLink): LocationQueryRaw {
       <tr>
         <td>
           <a
-            href="/assets/projects/mapgraph/mapgraph.php?map=world&mode=graph&dataset=mediaserver-artist-country-counts&dataitem=ARTIST.COUNT"
+            href="/assets/projects/mapgraph/mapgraph.php?map=world&mode=graph&dataset=mediatunes-artist-country-counts&dataitem=ARTIST.COUNT"
             >[View Interactive Map (World of Music)]</a
           >
         </td>
@@ -97,7 +97,7 @@ function withSort(link: GeoQuickLink): LocationQueryRaw {
       <tr>
         <td>
           <a
-            href="/assets/projects/mapgraph/mapgraph.php?map=us-states&mode=graph&dataset=mediaserver-artist-us-state-counts&dataitem=ARTIST.COUNT"
+            href="/assets/projects/mapgraph/mapgraph.php?map=us-states&mode=graph&dataset=mediatunes-artist-us-state-counts&dataitem=ARTIST.COUNT"
             >[View Interactive Map (United States of Music)]</a
           >
         </td>

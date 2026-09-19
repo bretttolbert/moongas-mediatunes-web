@@ -22,7 +22,7 @@
 
 ## Live Demos
 - [Live Demo (hosted on bretttolbert.com)](https://bretttolbert.com/mediaserver)
-- [Live Demo (hosted on moongas.org)](https://moongas.org/mediaserver)
+- [Live Demo (hosted on moongas.org)](https://moongas.org/mediatunes)
 
 # Quick Start
 
@@ -85,7 +85,7 @@ The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/
     2. "Play" by opening YouTube search for _"(artist) (album) (title) video"_ (configurable)
         - Great for finding music videos of your favorite music
         - Great for creating YouTube playlists of music videos meeting certain filter criteria (e.g. 80s New Wave music videos for your 80s party)
-        - IMHO mediaserver + YouTube premium (no ads) is better than YouTube Music or Spotify
+        - IMHO mediatunes + YouTube premium (no ads) is better than YouTube Music or Spotify
     3. (Default) Display both options
 - Album art displayed at a beautiful `1000x1000px` resolution
     - (bandwidth optimized by converting to `.webp` at 80% quality if hosted by yours truly)
@@ -175,9 +175,9 @@ sudo systemctl enable mediatunes-web.service
 ```
 - Start the service
 ```bash
-systemctl start mediatunes-web.service
+systemctl start mediatunes-web
 ```
-- Use `systemctl status` to verify that mediatunes-web is running
+- Use `systemctl status` to verify that `mediatunes-web` is running
 ```bash
 systemctl status mediatunes-web
 ```

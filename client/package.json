@@ -1,5 +1,5 @@
 {
-  "name": "mediaserver-client",
+  "name": "mediatunes-client",
   "private": true,
   "version": "1.2.0",
   "type": "module",

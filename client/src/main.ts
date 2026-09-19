@@ -3,7 +3,7 @@ import App from './App.vue'
 import { router } from './router'
 import { ensureConfigLoaded } from './configStore'
 
-import './assets/mediaserver.css'
+import './assets/mediatunes.css'
 import './assets/age_verification.css'
 
 const app = createApp(App)
