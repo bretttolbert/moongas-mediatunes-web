@@ -111,7 +111,7 @@ The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/
     - For example:
         - Artist folders containing album folders with `cover.jpg` (or `cover.webp`) files
         - Music filenames do not contain prohibited characters such as `+`
-    - You can enforce these requirements by testing your music library with [moongas-mediatest-python-pytest](https://github.com/bretttolbert/moongas-mediatest-python-pytest)
+    - You can enforce these requirements by testing your music library with Moongas [mediatest](https://github.com/bretttolbert/moongas-mediatest-python-pytest)
 
 ## Coming soon
 
