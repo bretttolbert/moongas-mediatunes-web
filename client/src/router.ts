@@ -17,9 +17,6 @@ const NameThatTuneIndexView = () => import('./views/NameThatTuneIndexView.vue')
 const WordCloudView = () => import('./views/WordCloudView.vue')
 
 /**
- * Paths mirror the original mediaserver routes so existing
- * links/bookmarks keep working. Filter state lives in the query string.
- *
  * Route meta:
  * - bare: no header/footer (word clouds)
  * - noYears: header without the year prev/next nav (player, tracks)

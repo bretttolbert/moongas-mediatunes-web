@@ -22,8 +22,8 @@
 - [moongas-mediatest-python-pytest](https://github.com/bretttolbert/moongas-mediatest-python-pytest) [![CI](https://github.com/bretttolbert/moongas-mediatest-python-pytest/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediatest-python-pytest/actions/workflows/ci.yml) - Python tool for enforcing media collection rules (implemented with `pytest`)
 
 ## Live Demos
-- [Live Demo (hosted on bretttolbert.com)](https://bretttolbert.com/mediaserver)
-- [Live Demo (hosted on moongas.org)](https://moongas.org/mediaserver)
+- [Live Demo (hosted on bretttolbert.com)](https://bretttolbert.com/mediatunes)
+- [Live Demo (hosted on moongas.org)](https://moongas.org/mediatunes)
 
 # Quick Start
 
@@ -49,15 +49,15 @@ deno task check     # runs vue-tsc on client/ and deno check on server/
 
 ### Filter by year range
 
-[bretttolbert.com/mediaserver/albums?minYear=1990&maxYear=2004](https://bretttolbert.com/mediaserver/albums?minYear=1990&maxYear=2004)
+[bretttolbert.com/mediatunes/albums?minYear=1990&maxYear=2004](https://bretttolbert.com/mediatunes/albums?minYear=1990&maxYear=2004)
 
 ### Filter by year range and genre(s)
 
-[bretttolbert.com/mediaserver/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français](https://bretttolbert.com/mediaserver/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français)
+[bretttolbert.com/mediatunes/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français](https://bretttolbert.com/mediatunes/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français)
 
 ### Filter by artist, album and title
 
-[bretttolbert.com/mediaserver/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric](https://bretttolbert.com/mediaserver/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric)
+[bretttolbert.com/mediatunes/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric](https://bretttolbert.com/mediatunes/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric)
 
 ## Screenshots
 
