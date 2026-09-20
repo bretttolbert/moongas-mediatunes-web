@@ -189,8 +189,11 @@ systemctl restart mediatunes-web
 - Once you have it set up to run as a service, re-scanning your library is as easy as this:
 ```bash
 cd moongas-mediascan-golang
-go run cmd/mediascan-db mediascan-config.yml ../mediascan.db
+go run cmd/mediascan-db ../mediascan-config.yml ../mediascan.db
+sudo systemctl restart mediatunes-svc
 sudo systemctl restart mediatunes-web
+systemctl status mediatunes-svc
+systemctl status mediatunes-wen
 journalctl -b -f -u mediatunes-web
 ```
 - Use `-u` to specify the unit by name (`mediatunes-web`)
