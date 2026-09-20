@@ -20,7 +20,7 @@ WorkingDirectory=/var/www/moongas/moongas-collection-demo/moongas-mediatunes-web
 #   BACKEND_URL_PREFIX  path prefix the JSON API is served under
 Environment=PORT=8000
 Environment=BACKEND_URL=http://127.0.0.1:5000
-Environment=BACKEND_URL_PREFIX=/api
+Environment=BACKEND_URL_PREFIX=/
 ExecStart=/usr/bin/deno run --allow-net --allow-read --allow-env server/main.ts
 Restart=always
 RestartSec=30s
