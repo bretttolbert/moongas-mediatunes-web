@@ -25,7 +25,9 @@ const WordCloudView = () => import('./views/WordCloudView.vue')
  * - noYears: header without the year prev/next nav (player, tracks)
  */
 export const router = createRouter({
-  history: createWebHistory('/'),
+  // Serve under the Vite `base` path (e.g. /mediatunes/) so history-mode
+  // routes work identically in dev (root) and prod (sub-path).
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', name: 'root', component: AlbumsIndexView },
     { path: '/albums', name: 'albums', component: AlbumsView },

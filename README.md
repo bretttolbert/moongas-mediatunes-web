@@ -70,7 +70,7 @@ The web UI is a single-page application built with [Deno](https://deno.com/), [V
 - `client/` — the Vue SPA (all TypeScript; uses npm `d3` + `d3-cloud` for the word clouds). Routes mirror the API paths (`/albums`, `/tracks`, `/artists`, `/player`, `/genres-cloud`, etc.).
 - `server/main.ts` — plain `Deno.serve` production server: serves the Vite build from `client/dist`, proxies `/api/*` and `/getfile/*` to the backend, and falls back to `index.html` for client-side routes.
 
-The SPA consumes a JSON API (`/api/config`, `/api/albums`, `/api/tracks`, `/api/artists`, `/api/artist`, `/api/genres`, `/api/artist-geo/<kind>`, `/api/wordcloud/*`, `/api/random-track`) and media files via `/getfile/*`. Both are proxied to the mediatunes-svc backend at `BACKEND_URL` (default `http://127.0.0.1:5000`); the JSON API is served under `BACKEND_URL_PREFIX` (e.g. `/api`) while media files are served at the backend root (`/getfile/<path>`, no prefix).
+The SPA consumes a JSON API (`<base>/api/config`, `<base>/api/albums`, `<base>/api/tracks`, `<base>/api/artists`, `<base>/api/artist`, `<base>/api/genres`, `<base>/api/artist-geo/<kind>`, `<base>/api/wordcloud/*`, `<base>/api/random-track`) and media files via `<base>/getfile/*`, where `<base>` is the public base path (default `/mediatunes`, matching the Vite `base`). The frontend strips the base prefix and proxies both to the mediatunes-svc backend at `BACKEND_URL` (default `http://127.0.0.1:5000`); the JSON API is served under `BACKEND_URL_PREFIX` (default `/api`) while media files are served at the backend root (`/getfile/<path>`, no prefix). In production, nginx routes all `/mediatunes/*` traffic (including `/mediatunes/api/*` and `/mediatunes/getfile/*`) to this frontend server.
 
 ### Runtimes
 
@@ -200,3 +200,59 @@ journalctl -b -f -u mediatunes-web
 - Use `-u` to specify the unit by name (`mediatunes-web`)
 - Use `-f` to follow the log so you can watch the server startup
 - Use `-b` to only show output since last boot (avoids showing old output)
+
+## Nginx Configuration
+
+You will need to add something similar to this to your Nginx site config:
+
+Simplest:
+
+```bash
+    # Everything under /mediatunes/ (SPA, assets, /mediatunes/api/*, and
+    # /mediatunes/getfile/*) is handled by the frontend server on :8000,
+    # which serves static files and proxies api/getfile to the backend on :5000.
+    location /mediatunes/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+```
+
+More efficient:
+
+```bash
+    # API + media: strip the /mediatunes prefix and send straight to the
+    # backend (mediatunes-svc on :5000), which serves /api/* and /getfile/*
+    # at its root. The trailing URI on proxy_pass replaces the matched prefix:
+    #   /mediatunes/api/config     -> /api/config
+    #   /mediatunes/getfile/x.mp3  -> /getfile/x.mp3
+    location /mediatunes/api/ {
+        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /mediatunes/getfile/ {
+        proxy_pass http://127.0.0.1:5000/getfile/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Everything else under /mediatunes/ (SPA HTML, JS/CSS assets, client-side
+    # routes) goes to the frontend server on :8000. No URI part on proxy_pass,
+    # so the /mediatunes prefix is preserved and the Deno server strips it.
+    location /mediatunes/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+```

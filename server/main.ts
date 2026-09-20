@@ -1,10 +1,13 @@
 /**
  * Production server for the mediatunes SPA — plain Deno.serve, no framework.
  *
- * - Serves the Vite build output from client/dist
- * - Proxies /api/* and /getfile/* to the backend (mediatunes-svc, which owns
- *   the mediascan database and the media files)
- * - Falls back to index.html for unknown paths (SPA history-mode routing)
+ * - Serves the Vite build output from client/dist under the PUBLIC_BASE_PATH
+ *   (default "/mediatunes", the same value as the client's Vite `base`).
+ * - Proxies <base>/api/* and <base>/getfile/* to the backend (mediatunes-svc,
+ *   which owns the mediascan database and the media files). The "/mediatunes"
+ *   base prefix is stripped before forwarding so the backend keeps its own
+ *   unprefixed /api and /getfile layout.
+ * - Falls back to index.html for unknown paths (SPA history-mode routing).
  *
  * Backend path layout (mediatunes-svc):
  *   - JSON API lives under BACKEND_URL_PREFIX (e.g. "/api" -> /api/albums, ...)
@@ -14,12 +17,17 @@
  *   PORT                listen port (default 8000)
  *   BACKEND_URL         backend base URL (default http://127.0.0.1:5000)
  *   BACKEND_URL_PREFIX  path prefix the backend's JSON API is served under
- *                       (default "", e.g. "/api")
+ *                       (default "/api")
+ *   PUBLIC_BASE_PATH    public base path the SPA is served under
+ *                       (default "/mediatunes")
  */
 
 const PORT = Number(Deno.env.get("PORT") ?? "8000");
 const BACKEND_URL = Deno.env.get("BACKEND_URL") ?? "http://127.0.0.1:5000";
-const BACKEND_URL_PREFIX = (Deno.env.get("BACKEND_URL_PREFIX") ?? "").replace(/\/$/, "");
+const BACKEND_URL_PREFIX = (Deno.env.get("BACKEND_URL_PREFIX") ?? "/api").replace(/\/$/, "");
+// Base path the SPA is served under (matches the client's Vite `base`).
+const PUBLIC_BASE_PATH = "/" +
+  (Deno.env.get("PUBLIC_BASE_PATH") ?? "mediatunes").replace(/^\/+|\/+$/g, "");
 const DIST_DIR = new URL("../client/dist/", import.meta.url);
 
 const MIME_TYPES: Record<string, string> = {
@@ -59,12 +67,14 @@ const HOP_BY_HOP_HEADERS = [
   "upgrade",
 ];
 
-async function proxyToBackend(req: Request): Promise<Response> {
+async function proxyToBackend(req: Request, path: string): Promise<Response> {
   const url = new URL(req.url);
-  // /getfile/* is served at the backend root; only /api/* gets the prefix.
-  const upstreamPath = url.pathname.startsWith("/api/")
-    ? `${BACKEND_URL_PREFIX}${url.pathname}`
-    : url.pathname;
+  // `path` already has the public base prefix stripped. The JSON API is
+  // re-rooted under BACKEND_URL_PREFIX (e.g. "/api"); media files (/getfile)
+  // stay at the backend root.
+  const upstreamPath = path.startsWith("/api/")
+    ? `${BACKEND_URL_PREFIX}${path.slice("/api".length)}`
+    : path;
   const target = `${BACKEND_URL}${upstreamPath}${url.search}`;
 
   const reqHeaders = new Headers(req.headers);
@@ -121,17 +131,36 @@ async function serveIndex(): Promise<Response> {
 
 async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
+  let pathname = url.pathname;
 
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/getfile/")) {
+  // Only handle requests under the public base path (e.g. "/mediatunes"). The
+  // base prefix is stripped so the rest of the server is base-agnostic; the
+  // root "/" also redirects there for convenience.
+  if (pathname === "/") {
+    return new Response(null, {
+      status: 302,
+      headers: { location: `${PUBLIC_BASE_PATH}/` },
+    });
+  }
+  if (pathname === PUBLIC_BASE_PATH) {
+    pathname = "/";
+  } else if (pathname.startsWith(`${PUBLIC_BASE_PATH}/`)) {
+    pathname = pathname.slice(PUBLIC_BASE_PATH.length);
+  } else {
+    return new Response("Not Found", { status: 404 });
+  }
+
+  // Proxy the JSON API and media files to the backend.
+  if (pathname.startsWith("/api/") || pathname.startsWith("/getfile/")) {
     try {
-      return await proxyToBackend(req);
+      return await proxyToBackend(req, pathname);
     } catch (err) {
       // Client disconnected / request aborted mid-flight: harmless, don't log a 502.
       const e = err as { name?: string; code?: string };
       if (e?.name === "AbortError" || e?.code === "ECONNRESET") {
         return new Response(null, { status: 499 }); // client closed request
       }
-      console.error(`Proxy error for ${url.pathname}:`, err);
+      console.error(`Proxy error for ${pathname}:`, err);
       return new Response(`Bad Gateway: backend unreachable at ${BACKEND_URL}`, {
         status: 502,
         headers: { "content-type": "text/plain; charset=utf-8" },
@@ -139,7 +168,7 @@ async function handler(req: Request): Promise<Response> {
     }
   }
 
-  const staticResp = await serveStatic(url.pathname);
+  const staticResp = await serveStatic(pathname);
   if (staticResp) return staticResp;
 
   // SPA fallback: let the client-side router handle unknown paths.
@@ -147,5 +176,7 @@ async function handler(req: Request): Promise<Response> {
 }
 
 console.log(`mediatunes SPA server listening on http://0.0.0.0:${PORT}`);
-console.log(`Proxying /api -> ${BACKEND_URL}${BACKEND_URL_PREFIX}/api, /getfile -> ${BACKEND_URL}/getfile`);
+console.log(
+  `Serving SPA under ${PUBLIC_BASE_PATH}/; proxying ${PUBLIC_BASE_PATH}/api -> ${BACKEND_URL}${BACKEND_URL_PREFIX}, ${PUBLIC_BASE_PATH}/getfile -> ${BACKEND_URL}/getfile`,
+);
 Deno.serve({ port: PORT, hostname: "0.0.0.0" }, handler);

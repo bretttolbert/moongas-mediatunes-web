@@ -32,9 +32,24 @@ export function buildSearchParams(query: LocationQuery): URLSearchParams {
   return params
 }
 
+/**
+ * Base path the SPA is served under, derived from Vite's `base`
+ * (e.g. "/mediatunes/"). Used to prefix same-origin API and media URLs so
+ * the client works identically whether served from the root (dev) or from a
+ * sub-path (prod). Always ends with a trailing slash; never a lone "/".
+ */
+const BASE = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`
+
+/** URL for a JSON API path, prefixed with the base path. */
+function apiUrl(path: string): string {
+  return `${BASE}api${path.startsWith('/') ? path : `/${path}`}`
+}
+
 async function fetchJson<T>(path: string, query?: LocationQuery): Promise<T> {
   const qs = query ? buildSearchParams(query).toString() : ''
-  const url = qs ? `${path}?${qs}` : path
+  const url = qs ? `${apiUrl(path)}?${qs}` : apiUrl(path)
   const resp = await fetch(url)
   if (!resp.ok) {
     throw new Error(`GET ${url} failed: ${resp.status} ${resp.statusText}`)
@@ -42,34 +57,34 @@ async function fetchJson<T>(path: string, query?: LocationQuery): Promise<T> {
   return (await resp.json()) as T
 }
 
-/** URL for the /getfile/<path> media-file endpoint. */
+/** URL for the getfile/<path> media-file endpoint, prefixed with the base path. */
 export function getfileUrl(path: string): string {
-  return `/getfile${path.startsWith('/') ? path : `/${path}`}`
+  return `${BASE}getfile${path.startsWith('/') ? path : `/${path}`}`
 }
 
 export const api = {
-  config: () => fetchJson<ServerConfig>('/api/config'),
+  config: () => fetchJson<ServerConfig>('/config'),
 
   albums: (query: LocationQuery) =>
-    fetchJson<{ albums: AlbumInfo[] }>('/api/albums', query),
+    fetchJson<{ albums: AlbumInfo[] }>('/albums', query),
 
   tracks: (query: LocationQuery) =>
-    fetchJson<{ files: MediaFile[]; coverPath: string }>('/api/tracks', query),
+    fetchJson<{ files: MediaFile[]; coverPath: string }>('/tracks', query),
 
   artists: (query: LocationQuery) =>
-    fetchJson<{ artists: ArtistCount[] }>('/api/artists', query),
+    fetchJson<{ artists: ArtistCount[] }>('/artists', query),
 
-  artist: (query: LocationQuery) => fetchJson<{ artist: ArtistInfo }>('/api/artist', query),
+  artist: (query: LocationQuery) => fetchJson<{ artist: ArtistInfo }>('/artist', query),
 
   genres: (sort?: string) =>
-    fetchJson<{ genres: GenreCount[] }>('/api/genres', sort ? { sort } : undefined),
+    fetchJson<{ genres: GenreCount[] }>('/genres', sort ? { sort } : undefined),
 
-  artistGeo: (kind: GeoKind) => fetchJson<{ items: GeoCountItem[] }>(`/api/artist-geo/${kind}`),
+  artistGeo: (kind: GeoKind) => fetchJson<{ items: GeoCountItem[] }>(`/artist-geo/${kind}`),
 
-  wordCloudGenres: () => fetchJson<{ words: WordCloudWord[] }>('/api/wordcloud/genres'),
+  wordCloudGenres: () => fetchJson<{ words: WordCloudWord[] }>('/wordcloud/genres'),
 
   wordCloudArtists: (query: LocationQuery) =>
-    fetchJson<{ words: WordCloudWord[] }>('/api/wordcloud/artists', query),
+    fetchJson<{ words: WordCloudWord[] }>('/wordcloud/artists', query),
 
-  randomTrack: (query: LocationQuery) => fetchJson<TrackInfo>('/api/random-track', query),
+  randomTrack: (query: LocationQuery) => fetchJson<TrackInfo>('/random-track', query),
 }
