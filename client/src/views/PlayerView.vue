@@ -5,6 +5,21 @@ import { api, getfileUrl } from '../api'
 import { configState } from '../configStore'
 import { formatSearchQueryUrl } from '../utils/format'
 import HintsPanel from '../components/HintsPanel.vue'
+import googleLogoUrl from '../assets/Google_logo.svg'
+import spotifyLogoUrl from '../assets/Spotify_icon.svg'
+import tidalLogoUrl from '../assets/Tidal_logo.svg'
+import youtubeLogoUrl from '../assets/YouTube_logo.svg'
+import youtubeMusicLogoUrl from '../assets/YouTube_Music_logo.svg'
+import appleLogoUrl from '../assets/Apple_logo.svg'
+import amazonLogoUrl from '../assets/Amazon_logo.svg'
+import deezerLogoUrl from '../assets/Deezer_logo.svg'
+import bandcampLogoUrl from '../assets/Bandcamp_logo.svg'
+import discogsLogoUrl from '../assets/Discogs_logo.svg'
+import musicBrainzLogoUrl from '../assets/MusicBrainz_logo.svg'
+import wikipediaLogoUrl from '../assets/Wikipedia_logo.svg'
+import soundcloudLogoUrl from '../assets/SoundCloud_logo.svg'
+import mp3LogoUrl from '../assets/mp3_logo.svg'
+import lastFmLogoUrl from '../assets/Lastfm_logo.svg'
 import type { TrackInfo } from '../types'
 
 /**
@@ -107,6 +122,62 @@ function next(): void {
   void loadTrack(localEnabled.value)
 }
 
+function isGoogleLink(url: string): boolean {
+  return url.toLowerCase().includes('google.com') && !url.toLowerCase().includes('q=spotify:search') && !url.toLowerCase().includes('q=tidal:search')
+}
+
+function isSpotifyLink(url: string): boolean {
+  return url.toLowerCase().includes('spotify.com') || url.toLowerCase().includes('q=spotify:search')
+}
+
+function isAppleLink(url: string): boolean {
+  return url.toLowerCase().includes('apple.com')
+}
+
+function isAmazonLink(url: string): boolean {
+  return url.toLowerCase().includes('amazon.com')
+}
+
+function isTidalLink(url: string): boolean {
+  return url.toLowerCase().includes('tidal.com') || url.toLowerCase().includes('q=tidal:search')
+}
+
+function isYoutubeLink(url: string): boolean {
+  return url.toLowerCase().includes('youtube.com') && !url.toLowerCase().includes('music.youtube.com')
+}
+
+function isYoutubeMusicLink(url: string): boolean {
+  return url.toLowerCase().includes('music.youtube.com')
+}
+
+function isDeezerLink(url: string): boolean {
+  return url.toLowerCase().includes('deezer.com')
+}
+
+function isDiscogsLink(url: string): boolean {
+  return url.toLowerCase().includes('discogs.com')
+}
+
+function isBandcampLink(url: string): boolean {
+  return url.toLowerCase().includes('bandcamp.com')
+}
+
+function isMusicBrainzLink(url: string): boolean {
+  return url.toLowerCase().includes('musicbrainz.org')
+}
+
+function isWikipediaLink(url: string): boolean {
+  return url.toLowerCase().includes('wikipedia.org')
+}
+
+function isSoundcloudLink(url: string): boolean {
+  return url.toLowerCase().includes('soundcloud.com')
+}
+
+function isLastFmLink(url: string): boolean {
+  return url.toLowerCase().includes('last.fm')
+}
+
 /** Continuous shuffle: when a track ends, load the next one and play it. */
 function onEnded(): void {
   void loadTrack(true)
@@ -131,15 +202,15 @@ function onCanPlayThrough(): void {
     <div id="playerControls">
       <template v-if="localEnabled">
         <h1 v-if="hintsMode">Random track, can you name it?</h1>
-        <button id="playBtn" class="btn btn-secondary btn-lg" @click="togglePlayback">
+        <button id="restartBtn" class="player-btn btn btn-secondary btn-lg" @click="restart">
+          <i class="bi bi-arrow-clockwise"></i> Restart
+        </button>
+        <button id="playBtn" class="player-btn btn btn-secondary btn-lg play-button-xl" @click="togglePlayback">
           <template v-if="isPlaying"><i class="bi bi-pause-circle-fill"></i> Pause</template>
           <template v-else><i class="bi bi-play-circle-fill"></i> Play</template>
         </button>
-        <button id="restartBtn" class="btn btn-secondary btn-lg" @click="restart">
-          <i class="bi bi-rewind-circle-fill"></i> Restart
-        </button>
       </template>
-      <button id="nextBtn" class="btn btn-secondary btn-lg" @click="next">
+      <button id="nextBtn" class="player-btn btn btn-secondary btn-lg" @click="next">
         <i class="bi bi-fast-forward-circle-fill"></i> Next
       </button>
       <br />
@@ -151,7 +222,106 @@ function onCanPlayThrough(): void {
     </div>
     <div v-if="error" class="error">{{ error }}</div>
     <div v-show="!hintsMode || hintsRevealed" id="trackList">
-      <table v-if="track && trackLinks" class="playback-options">
+      <div v-if="track && trackLinks" class="playback-options-ribbon">
+        <router-link
+          v-if="localEnabled"
+          id="playLocalMediaLink"
+          class="playback-option"
+          :to="trackLinks.playLocal"
+          ><img :src="mp3LogoUrl" class="playback-link-icon" alt="" />Local Media</router-link
+        >
+        <a
+          v-for="link in webSearchLinks"
+          :key="link.name"
+          class="playback-option"
+          :href="link.url"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img v-if="isGoogleLink(link.url)" :src="googleLogoUrl" class="playback-link-icon" alt="" />
+          <img
+            v-else-if="isSpotifyLink(link.url)"
+            :src="spotifyLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isTidalLink(link.url)"
+            :src="tidalLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isYoutubeLink(link.url)"
+            :src="youtubeLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isYoutubeMusicLink(link.url)"
+            :src="youtubeMusicLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isAppleLink(link.url)"
+            :src="appleLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isAmazonLink(link.url)"
+            :src="amazonLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isDeezerLink(link.url)"
+            :src="deezerLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isDiscogsLink(link.url)"
+            :src="discogsLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isBandcampLink(link.url)"
+            :src="bandcampLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isMusicBrainzLink(link.url)"
+            :src="musicBrainzLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isWikipediaLink(link.url)"
+            :src="wikipediaLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isSoundcloudLink(link.url)"
+            :src="soundcloudLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <img
+            v-else-if="isLastFmLink(link.url)"
+            :src="lastFmLogoUrl"
+            class="playback-link-icon"
+            alt=""
+          />
+          <template v-else>🔍</template
+          >{{ link.name }}
+        </a>
+      </div>
+      <table v-if="track && trackLinks" class="playback-options track-info">
         <tr>
           <th>Title:</th>
           <td>
@@ -220,22 +390,6 @@ function onCanPlayThrough(): void {
             <router-link id="linkLanguage" :to="trackLinks.language" target="_blank" rel="noopener noreferrer">{{
               track.languageCode
             }}</router-link>
-          </td>
-        </tr>
-        <tr>
-          <th>Playback Options:</th>
-          <td></td>
-        </tr>
-        <tr v-if="localEnabled">
-          <th></th>
-          <td>
-            <router-link id="playLocalMediaLink" :to="trackLinks.playLocal">▶ Local Media</router-link>
-          </td>
-        </tr>
-        <tr v-for="link in webSearchLinks" :key="link.name">
-          <th></th>
-          <td>
-            <a :href="link.url" target="_blank" rel="noopener noreferrer">🔍 {{ link.name }}</a>
           </td>
         </tr>
       </table>
