@@ -5,6 +5,7 @@ import { api, getfileUrl } from '../api'
 import { configState } from '../configStore'
 import { formatResults } from '../utils/format'
 import { queryList, queryScalar } from '../utils/queryParams'
+import WebSearchLinks from '../components/WebSearchLinks.vue'
 import type { MediaFile } from '../types'
 
 /** Port of tracks.html (track listing table). */
@@ -46,6 +47,14 @@ const shuffleAlbumQuery = computed<LocationQueryRaw | null>(() => {
   if (artistParam.value) return { artist: artistParam.value, album }
   return null
 })
+
+/** Artist/album for the single album shown (falls back to the listed tracks' artist). */
+const singleAlbum = computed<{ artist: string; album: string } | null>(() => {
+  const album = albumParam.value[0]
+  if (!album || files.value.length === 0) return null
+  const artist = albumArtistParam.value || artistParam.value || files.value[0].artist
+  return { artist, album }
+})
 </script>
 
 <template>
@@ -74,6 +83,9 @@ const shuffleAlbumQuery = computed<LocationQueryRaw | null>(() => {
           >Shuffle Album <i>{{ albumParam[0] }}</i></router-link
         >
         <br />
+      </div>
+      <div v-if="singleAlbum" class="playback-options-ribbon">
+        <WebSearchLinks :artist="singleAlbum.artist" :album="singleAlbum.album" />
       </div>
       <div id="trackList">
         <table class="w-100">
